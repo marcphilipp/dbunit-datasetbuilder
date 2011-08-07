@@ -42,7 +42,7 @@ After researching and looking through the DBUnit code -- especially `FlatXmlData
     builder.newRow("PERSON").with(name, "Alice").with(age, 23).add();
     
     // New columns are added on the fly
-    builder.newRow("PERSON").with(NAME, "Charlie").with("LAST_NAME", "Brown").add();
+    builder.newRow("PERSON").with(name, "Charlie").with("LAST_NAME", "Brown").add();
     
     IDataSet dataSet = builder.build();
 
