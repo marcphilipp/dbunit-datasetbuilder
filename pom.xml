@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.dbunit.dataset.builder</groupId>
+	<artifactId>dbunit-datasetbuilder</artifactId>
+	<version>1.0-SNAPSHOT</version>
+
+	<name>DBUnint Data Set Builder</name>
+	<description>DBUnit - Dynamically Creating Data Sets Using Builders</description>
+
+	<licenses>
+		<license>
+	      <name>GNU Lesser General Public License, Version 2.1</name>
+	      <url>http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<url>http://github.com/marcphilipp/dbunit-datasetbuilder</url>
+		<connection>scm:git:git://github.com/marcphilipp/dbunit-datasetbuilder</connection>
+		<developerConnection>scm:git:git@github.com:marcphilipp/dbunit-datasetbuilder.git</developerConnection>
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.dbunit</groupId>
+			<artifactId>dbunit</artifactId>
+			<version>2.4.9</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>
