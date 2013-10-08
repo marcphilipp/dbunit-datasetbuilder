@@ -6,9 +6,9 @@
 	<artifactId>dbunit-datasetbuilder</artifactId>
 	<version>1.0</version>
 
-  <name>DBUnint Data Set Builder</name>
-  <description>DBUnit - Dynamically Creating Data Sets Using Builders</description>
-  <url>https://github.com/leocomelli/dbunit-datasetbuilder</url>
+	<name>DBUnint Data Set Builder</name>
+	<description>DBUnit - Dynamically Creating Data Sets Using Builders</description>
+	<url>https://github.com/leocomelli/dbunit-datasetbuilder</url>
 
 	<licenses>
 		<license>
