@@ -8,7 +8,6 @@
 
 	<name>DBUnint Data Set Builder</name>
 	<description>DBUnit - Dynamically Creating Data Sets Using Builders</description>
-	<url>https://github.com/leocomelli/dbunit-datasetbuilder</url>
 
 	<licenses>
 		<license>
@@ -18,8 +17,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git://github.com/leocomelli/dbunit-datasetbuilder</connection>
-		<developerConnection>scm:git:git@github.com:leocomelli/dbunit-datasetbuilder.git</developerConnection>
+		<url>http://github.com/marcphilipp/dbunit-datasetbuilder</url>
+		<connection>scm:git:git://github.com/marcphilipp/dbunit-datasetbuilder</connection>
+		<developerConnection>scm:git:git@github.com:marcphilipp/dbunit-datasetbuilder.git</developerConnection>
 	</scm>
 
 	<dependencies>
