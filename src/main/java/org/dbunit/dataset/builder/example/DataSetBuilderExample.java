@@ -1,4 +1,4 @@
-package org.dbunit.example;
+package org.dbunit.dataset.builder.example;
 
 import static org.dbunit.dataset.builder.ColumnSpec.newColumn;
 
