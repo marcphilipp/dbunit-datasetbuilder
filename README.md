@@ -1,5 +1,7 @@
 # DBUnit - Dynamically Creating Data Sets Using Builders
 
+[![Build Status](https://travis-ci.org/marcphilipp/dbunit-datasetbuilder.png)](https://travis-ci.org/marcphilipp/dbunit-datasetbuilder)
+
 ## Motivation
 
 DBUnit is a very useful library for writing tests that use relational databases. For example, it allows to cleanly insert required data before a test.
