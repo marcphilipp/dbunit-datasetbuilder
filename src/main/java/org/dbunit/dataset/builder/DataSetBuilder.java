@@ -52,8 +52,8 @@ public class DataSetBuilder {
 	}
 	
 	public void addDataSet(final IDataSet dataSet) throws DataSetException {
-		final IDataSet[] dataSets = { build(), dataSet };
-		final CompositeDataSet composite = new CompositeDataSet(dataSets);
+		IDataSet[] dataSets = { build(), dataSet };
+		CompositeDataSet composite = new CompositeDataSet(dataSets);
 		this.dataSet = new CachedDataSet(composite);
 		consumer = new BufferedConsumer(this.dataSet);
 	}
