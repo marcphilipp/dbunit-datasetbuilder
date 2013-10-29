@@ -106,4 +106,29 @@ public class DataSetBuilderTest {
 		assertNull(table.getValue(1, "NAME"));
 		assertEquals(18, table.getValue(1, "AGE"));
 	}
+	
+	@Test
+	public void addDataSet() throws Exception {
+		DataSetBuilder builder = new DataSetBuilder();
+		builder.newRow("PERSON").with("NAME", "Bob").with("AGE", 18).add();
+		
+		IDataSet dataSet = builder.build();
+		ITable table = dataSet.getTable("PERSON");
+		
+		assertEquals(1, table.getRowCount());
+		
+		builder = new DataSetBuilder();
+		builder.newRow("PERSON").with("NAME", "John").with("AGE", 19).add();
+		builder.addDataSet(dataSet);
+		
+		IDataSet dataSet2 = builder.build();
+	   ITable table2 = dataSet2.getTable("PERSON");
+	   
+	   assertEquals(2, table2.getRowCount());
+	   assertEquals("John", table2.getValue(0, "NAME"));
+	   assertEquals(19, table2.getValue(0, "AGE"));
+	   
+	   assertEquals("Bob", table2.getValue(1, "NAME"));
+	   assertEquals(18, table2.getValue(1, "AGE"));
+	}
 }
