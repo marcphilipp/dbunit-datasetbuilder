@@ -3,17 +3,14 @@ package org.dbunit.dataset.builder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dbunit.dataset.CachedDataSet;
-import org.dbunit.dataset.DataSetException;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITableMetaData;
+import org.dbunit.dataset.*;
 import org.dbunit.dataset.stream.BufferedConsumer;
 import org.dbunit.dataset.stream.IDataSetConsumer;
 
 public class DataSetBuilder {
 
-	private final CachedDataSet dataSet = new CachedDataSet();
-	private final IDataSetConsumer consumer = new BufferedConsumer(dataSet);
+	private CachedDataSet dataSet = new CachedDataSet();
+	private IDataSetConsumer consumer = new BufferedConsumer(dataSet);
 	private final Map<String, TableMetaDataBuilder> tableNameToMetaData = new HashMap<String, TableMetaDataBuilder>();
 	private final StringPolicy stringPolicy;
 
@@ -52,6 +49,13 @@ public class DataSetBuilder {
 		endTableIfNecessary();
 		consumer.endDataSet();
 		return dataSet;
+	}
+	
+	public void addDataSet(final IDataSet dataSet) throws DataSetException {
+		IDataSet[] dataSets = { build(), dataSet };
+		CompositeDataSet composite = new CompositeDataSet(dataSets);
+		this.dataSet = new CachedDataSet(composite);
+		consumer = new BufferedConsumer(this.dataSet);
 	}
 
 	protected void add(DataRowBuilder row) throws DataSetException {
