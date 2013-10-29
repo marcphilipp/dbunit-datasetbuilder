@@ -122,13 +122,13 @@ public class DataSetBuilderTest {
 		builder.addDataSet(dataSet);
 		
 		IDataSet dataSet2 = builder.build();
-	   ITable table2 = dataSet2.getTable("PERSON");
+	   	ITable table2 = dataSet2.getTable("PERSON");
 	   
-	   assertEquals(2, table2.getRowCount());
-	   assertEquals("John", table2.getValue(0, "NAME"));
-	   assertEquals(19, table2.getValue(0, "AGE"));
+	   	assertEquals(2, table2.getRowCount());
+	   	assertEquals("John", table2.getValue(0, "NAME"));
+	   	assertEquals(19, table2.getValue(0, "AGE"));
 	   
-	   assertEquals("Bob", table2.getValue(1, "NAME"));
-	   assertEquals(18, table2.getValue(1, "AGE"));
+	   	assertEquals("Bob", table2.getValue(1, "NAME"));
+	   	assertEquals(18, table2.getValue(1, "AGE"));
 	}
 }
