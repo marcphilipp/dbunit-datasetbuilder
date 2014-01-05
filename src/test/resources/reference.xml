@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <PERSON ID="0" VERSION="0" NAME="Bob" FIRSTNAME="" BIRTPLACE="NEW YORK" DATE_OF_BIRTH="1970-01-01" SEX="[NULL]"/>
+  <PERSON ID="0" VERSION="0" NAME="Alice" FIRSTNAME="" BIRTPLACE="London" DATE_OF_BIRTH="1970-01-01"/>
+  <ADDRESS STREET="Main Street" NUMBER="42"/>
+</dataset>

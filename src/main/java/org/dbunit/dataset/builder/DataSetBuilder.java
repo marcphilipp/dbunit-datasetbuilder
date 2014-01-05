@@ -1,3 +1,23 @@
+/*
+ *
+ * The DbUnit Database Testing Framework
+ * Copyright (C)2002-2008, DbUnit.org
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 package org.dbunit.dataset.builder;
 
 import java.util.HashMap;
@@ -7,136 +27,145 @@ import org.dbunit.dataset.*;
 import org.dbunit.dataset.stream.BufferedConsumer;
 import org.dbunit.dataset.stream.IDataSetConsumer;
 
-public class DataSetBuilder {
+public class DataSetBuilder implements IDataSetManipulator {
 
-	private CachedDataSet dataSet = new CachedDataSet();
-	private IDataSetConsumer consumer = new BufferedConsumer(dataSet);
-	private final Map<String, TableMetaDataBuilder> tableNameToMetaData = new HashMap<String, TableMetaDataBuilder>();
-	private final StringPolicy stringPolicy;
+    private CachedDataSet dataSet = new CachedDataSet();
+    private IDataSetConsumer consumer = new BufferedConsumer(dataSet);
+    private final Map<String, TableMetaDataBuilder> tableNameToMetaData = new HashMap<String, TableMetaDataBuilder>();
+    private final IStringPolicy stringPolicy;
 
-	private String currentTableName;
+    private String currentTableName;
 
-	private static StringPolicy stringPolicy(boolean ignoreCase) {
-		return ignoreCase ? new CaseInsensitiveStringPolicy() : new CaseSensitiveStringPolicy();
-	}
+    private static IStringPolicy stringPolicy(boolean ignoreCase) {
+        return ignoreCase ? new CaseInsensitiveStringPolicy() : new CaseSensitiveStringPolicy();
+    }
 
-	public DataSetBuilder() throws DataSetException {
-		this(true);
-	}
+    public DataSetBuilder() throws DataSetException {
+        this(true);
+    }
 
-	public DataSetBuilder(boolean ignoreCase) throws DataSetException {
-		this(stringPolicy(ignoreCase));
-	}
+    public DataSetBuilder(boolean ignoreCase) throws DataSetException {
+        this(stringPolicy(ignoreCase));
+    }
 
-	public DataSetBuilder(StringPolicy stringPolicy) throws DataSetException {
-		this.stringPolicy = stringPolicy;
-		consumer.startDataSet();
-	}
+    public DataSetBuilder(IStringPolicy stringPolicy) throws DataSetException {
+        this.stringPolicy = stringPolicy;
+        consumer.startDataSet();
+    }
 
-	public void ensureTableIsPresent(String tableName) throws DataSetException {
-		if (containsTable(tableName)) {
-			return;
-		}
-		endTableIfNecessary();
-		startTable(metaDataBuilderFor(tableName).build());
-	}
+    public void ensureTableIsPresent(String tableName) throws DataSetException {
+        if (containsTable(tableName)) {
+            return;
+        }
+        endTableIfNecessary();
+        startTable(metaDataBuilderFor(tableName).build());
+    }
 
-	public DataRowBuilder newRow(String tableName) {
-		return new DataRowBuilder(this, tableName);
-	}
+    public static BasicDataRowBuilder newBasicRow(String tableName) {
+        return new BasicDataRowBuilder(tableName);
+    }
 
-	public IDataSet build() throws DataSetException {
-		endTableIfNecessary();
-		consumer.endDataSet();
-		return dataSet;
-	}
-	
-	public void addDataSet(final IDataSet dataSet) throws DataSetException {
-		IDataSet[] dataSets = { build(), dataSet };
-		CompositeDataSet composite = new CompositeDataSet(dataSets);
-		this.dataSet = new CachedDataSet(composite);
-		consumer = new BufferedConsumer(this.dataSet);
-	}
+    public DataRowBuilder newRow(String tableName) {
+        return new DataRowBuilder(this, tableName);
+    }
 
-	protected void add(DataRowBuilder row) throws DataSetException {
-		ITableMetaData metaData = updateTableMetaData(row);
-		Object[] values = extractValues(row, metaData);
-		notifyConsumer(values);
-	}
+    public IDataSet build() throws DataSetException {
+        endTableIfNecessary();
+        consumer.endDataSet();
+        return dataSet;
+    }
 
-	private Object[] extractValues(DataRowBuilder row, ITableMetaData metaData) throws DataSetException {
-		return row.values(metaData.getColumns());
-	}
+    public void addDataSet(final IDataSet dataSet) throws DataSetException {
+        IDataSet[] dataSets = { build(), dataSet };
+        CompositeDataSet composite = new CompositeDataSet(dataSets);
+        this.dataSet = new CachedDataSet(composite);
+        consumer = new BufferedConsumer(this.dataSet);
+    }
 
-	private void notifyConsumer(Object[] values) throws DataSetException {
-		consumer.row(values);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void add(BasicDataRowBuilder row) throws DataSetException {
+        row.fillUndefinedColumns();
+        ITableMetaData metaData = updateTableMetaData(row);
+        Object[] values = extractValues(row, metaData);
+        notifyConsumer(values);
+    }
 
-	private ITableMetaData updateTableMetaData(DataRowBuilder row) throws DataSetException {
-		TableMetaDataBuilder builder = metaDataBuilderFor(row.tableName());
-		int previousNumberOfColumns = builder.numberOfColumns();
-		
-		ITableMetaData metaData = builder.with(row.toMetaData()).build();
-		int newNumberOfColumns = metaData.getColumns().length;
-		
-		boolean addedNewColumn = newNumberOfColumns > previousNumberOfColumns;
-		handleTable(metaData, addedNewColumn);
-		
-		return metaData;
-	}
+    private Object[] extractValues(BasicDataRowBuilder row, ITableMetaData metaData) throws DataSetException {
+        return row.values(metaData.getColumns());
+    }
 
-	private void handleTable(ITableMetaData metaData, boolean addedNewColumn) throws DataSetException {
-		if (isNewTable(metaData.getTableName())) {
-			endTableIfNecessary();
-			startTable(metaData);
-		} else if (addedNewColumn) {
-			startTable(metaData);
-		}
-	}
+    private void notifyConsumer(Object[] values) throws DataSetException {
+        consumer.row(values);
+    }
 
-	private void startTable(ITableMetaData metaData) throws DataSetException {
-		currentTableName = metaData.getTableName();
-		consumer.startTable(metaData);
-	}
+    private ITableMetaData updateTableMetaData(BasicDataRowBuilder row) throws DataSetException {
+        TableMetaDataBuilder builder = metaDataBuilderFor(row.getTableName());
+        int previousNumberOfColumns = builder.numberOfColumns();
 
-	private void endTable() throws DataSetException {
-		consumer.endTable();
-		currentTableName = null;
-	}
+        ITableMetaData metaData = builder.with(row.toMetaData()).build();
+        int newNumberOfColumns = metaData.getColumns().length;
 
-	private void endTableIfNecessary() throws DataSetException {
-		if (hasCurrentTable()) {
-			endTable();
-		}
-	}
+        boolean addedNewColumn = newNumberOfColumns > previousNumberOfColumns;
+        handleTable(metaData, addedNewColumn);
 
-	private boolean hasCurrentTable() {
-		return currentTableName != null;
-	}
+        return metaData;
+    }
 
-	private boolean isNewTable(String tableName) {
-		return currentTableName == null	|| !stringPolicy.areEqual(currentTableName, tableName);
-	}
+    private void handleTable(ITableMetaData metaData, boolean addedNewColumn) throws DataSetException {
+        if (isNewTable(metaData.getTableName())) {
+            endTableIfNecessary();
+            startTable(metaData);
+        } else if (addedNewColumn) {
+            startTable(metaData);
+        }
+    }
 
-	private TableMetaDataBuilder metaDataBuilderFor(String tableName) {
-		String key = stringPolicy.toKey(tableName);
-		if (containsKey(key)) {
-			return tableNameToMetaData.get(key);
-		}
-		TableMetaDataBuilder builder = createNewTableMetaDataBuilder(tableName);
-		tableNameToMetaData.put(key, builder);
-		return builder;
-	}
+    private void startTable(ITableMetaData metaData) throws DataSetException {
+        currentTableName = metaData.getTableName();
+        consumer.startTable(metaData);
+    }
 
-	protected TableMetaDataBuilder createNewTableMetaDataBuilder(String tableName) {
-		return new TableMetaDataBuilder(tableName, stringPolicy);
-	}
+    private void endTable() throws DataSetException {
+        consumer.endTable();
+        currentTableName = null;
+    }
 
-	public boolean containsTable(String tableName) {
-		return containsKey(stringPolicy.toKey(tableName));
-	}
+    private void endTableIfNecessary() throws DataSetException {
+        if (hasCurrentTable()) {
+            endTable();
+        }
+    }
 
-	private boolean containsKey(String key) {
-		return tableNameToMetaData.containsKey(key);
-	}
+    private boolean hasCurrentTable() {
+        return currentTableName != null;
+    }
+
+    private boolean isNewTable(String tableName) {
+        return currentTableName == null	|| !stringPolicy.areEqual(currentTableName, tableName);
+    }
+
+    private TableMetaDataBuilder metaDataBuilderFor(String tableName) {
+        String key = stringPolicy.toKey(tableName);
+        if (containsKey(key)) {
+            return tableNameToMetaData.get(key);
+        }
+        TableMetaDataBuilder builder = createNewTableMetaDataBuilder(tableName);
+        tableNameToMetaData.put(key, builder);
+        return builder;
+    }
+
+    protected TableMetaDataBuilder createNewTableMetaDataBuilder(String tableName) {
+        return new TableMetaDataBuilder(tableName, stringPolicy);
+    }
+
+    public boolean containsTable(String tableName) {
+        return containsKey(stringPolicy.toKey(tableName));
+    }
+
+    private boolean containsKey(String key) {
+        return tableNameToMetaData.containsKey(key);
+    }
 }

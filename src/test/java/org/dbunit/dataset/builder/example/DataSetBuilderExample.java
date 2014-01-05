@@ -14,22 +14,22 @@ public class DataSetBuilderExample {
 	private static final ColumnSpec<String> NAME = newColumn("NAME");
 	private static final ColumnSpec<Integer> AGE = ColumnSpec.newColumn("AGE");
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		DataSetBuilder builder = new DataSetBuilder();
+        DataSetBuilder builder = new DataSetBuilder();
 
-		// Using strings as column names, not type-safe
-		builder.newRow("PERSON").with("NAME", "Bob").with("AGE", 18).add();
+        // Using strings as column names, not type-safe
+        builder.newRow("PERSON").with("NAME", "Bob").with("AGE", 18).add();
 
-		// Using ColumnSpecs to identify columns, type-safe!
-		builder.newRow("PERSON").with(NAME, "Alice").with(AGE, 23).add();
+        // Using ColumnSpecs to identify columns, type-safe!
+        builder.newRow("PERSON").with(NAME, "Alice").with(AGE, 23).add();
 
-		// New columns are added on the fly
-		builder.newRow("PERSON").with(NAME, "Charlie").with("LAST_NAME", "Brown").add();
+        // New columns are added on the fly
+        builder.newRow("PERSON").with(NAME, "Charlie").with("LAST_NAME", "Brown").add();
 
-		IDataSet dataSet = builder.build();
+        IDataSet dataSet = builder.build();
 
-		new XmlDataSetWriter(new PrintWriter(System.out)).write(dataSet);
-	}
+        new XmlDataSetWriter(new PrintWriter(System.out)).write(dataSet);
+    }
 
 }
