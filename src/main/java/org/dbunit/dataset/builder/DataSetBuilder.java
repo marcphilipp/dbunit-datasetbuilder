@@ -75,8 +75,8 @@ public class DataSetBuilder implements IDataSetManipulator {
         return dataSet;
     }
 
-    public void addDataSet(final IDataSet dataSet) throws DataSetException {
-        IDataSet[] dataSets = { build(), dataSet };
+    public void addDataSet(final IDataSet newDataSet) throws DataSetException {
+        IDataSet[] dataSets = { build(), newDataSet };
         CompositeDataSet composite = new CompositeDataSet(dataSets);
         this.dataSet = new CachedDataSet(composite);
         consumer = new BufferedConsumer(this.dataSet);
