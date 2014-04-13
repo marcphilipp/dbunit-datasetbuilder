@@ -51,20 +51,28 @@ public class CustomRowBuilderGenerator {
     private final String packageName;
     private final String encoding;
     private final boolean includeValidation;
+    private final RowBuilderNameCreator rowBuilderNameCreator;
 
     private String indent = "";
 
     private Map<Class<?>, Class<?>> typeMap = new HashMap<Class<?>, Class<?>>();
 
     /**
-     *
+     * Intantiate a new instance.
+     * @param destinationDir the directory where the file should be written.
+     * @param packageName the packagename of the classes.
+     * @param encoding the fileEncoding
+     * @param javaFriendlyNames true if you prefer more java common names then
+     * the original table and column-names.
      */
-    public CustomRowBuilderGenerator(File destinationDir, String packageName, String encoding) {
+    public CustomRowBuilderGenerator(File destinationDir, String packageName,
+            String encoding, RowBuilderNameCreator rowBuilderNameCreator) {
         this.destinationDir = new File(destinationDir,
                 packageName.replace('.', '/'));
         this.packageName = packageName;
         this.encoding = encoding == null ? System.getProperty("file.encoding") : encoding;
         includeValidation = isValidtorExtensionInClasspath();
+        this.rowBuilderNameCreator = rowBuilderNameCreator;
     }
 
     /**
@@ -130,7 +138,7 @@ public class CustomRowBuilderGenerator {
             }
         }
 
-        final String className = tableName + "RowBuilder";
+        final String className = rowBuilderNameCreator.createRowBuilderName(tableName);
         destinationDir.mkdirs();
         final File outputFile = new File(destinationDir, className + ".java");
         System.out.println("Write " + outputFile.getAbsolutePath());
@@ -154,13 +162,14 @@ public class CustomRowBuilderGenerator {
                         + " = \"" + tableName + "\";");
             out.println();
             for (Map.Entry<String, Class<?>> columns : columnTypes.entrySet()) {
-                println(out, "public static final String C_" + columns.getKey()
+                println(out, "public static final String " +
+                        rowBuilderNameCreator.createColumnConstantName(columns.getKey())
                         + " = \"" + columns.getKey() + "\";");
             }
             out.println();
             final StringBuilder pk = new StringBuilder("public static final String[] PRIMARY_KEY = {");
             for (int i = 0; i < pkColumnNames.length; i++) {
-                pk.append("C_").append(pkColumnNames[i]);
+                pk.append(rowBuilderNameCreator.createColumnConstantName(pkColumnNames[i]));
                 if (i < pkColumnNames.length - 1) {
                     pk.append(", ");
                 }
@@ -170,7 +179,7 @@ public class CustomRowBuilderGenerator {
             out.println();
             final StringBuilder all = new StringBuilder("public static final String[] ALL_COLUMNS = {");
             for (String colName : columnTypes.keySet()) {
-                all.append("C_").append(colName).append(", ");
+                all.append(rowBuilderNameCreator.createColumnConstantName(colName)).append(", ");
             }
             all.replace(all.length() - 2, all.length(), "};");
             println(out, all.toString());
@@ -179,7 +188,9 @@ public class CustomRowBuilderGenerator {
             println(out, "    super(TABLE_NAME, identifierColumns);");
             println(out, "    setAllColumnNames(ALL_COLUMNS);");
             for (String column : notNullColumns) {
-                println(out, "    addDefaultValue(C_" + column + ", " + getDefaultValue(columnTypes.get(column)) + ");");
+                println(out, "    addDefaultValue(" + rowBuilderNameCreator.
+                        createColumnConstantName(column)
+                        + ", " + getDefaultValue(columnTypes.get(column)) + ");");
             }
             println(out, "}");
             out.println();
@@ -193,11 +204,14 @@ public class CustomRowBuilderGenerator {
                 }
             }
             out.println();
-            println(out, "public static " + className + " new" +  tableName +"() {");
+            println(out, "public static " + className + " " +
+                    rowBuilderNameCreator.createFactoryMethodName(tableName) +"() {");
             println(out, "    return new " + className + "(PRIMARY_KEY);");
             println(out, "}");
             out.println();
-            println(out, "public static " + className + " new" +  tableName +"(String... identifierColumns) {");
+            println(out, "public static " + className + " " +
+                    rowBuilderNameCreator.createFactoryMethodName(tableName) +
+                    "(String... identifierColumns) {");
             println(out, "    return new " + className + "(identifierColumns);");
             println(out, "}");
             out.println();
@@ -222,9 +236,11 @@ public class CustomRowBuilderGenerator {
      */
     private void createSetterForColumnValidator(final String className,
             PrintWriter out, Map.Entry<String, Class<?>> column) {
-        println(out, "public final " + className + " " +  column.getKey()
+        println(out, "public final " + className + " "
+                +  rowBuilderNameCreator.createSetterName(column.getKey())
                 + " (IValidator<?> value) {");
-        println(out, "    with(C_" + column.getKey() +", value);");
+        println(out, "    with(" + rowBuilderNameCreator.
+                createColumnConstantName(column.getKey()) +", value);");
         println(out, "    return this;");
         println(out, "}");
     }
@@ -238,9 +254,11 @@ public class CustomRowBuilderGenerator {
      */
     private void createSetterForColumnValue(PrintWriter out,
             final String className, Map.Entry<String, Class<?>> column) {
-        println(out, "public final " + className + " " + column.getKey()
+        println(out, "public final " + className + " "
+                + rowBuilderNameCreator.createSetterName(column.getKey())
                 + " (" + column.getValue().getSimpleName() + " value) {");
-        println(out, "    with(C_" + column.getKey() +", value);");
+        println(out, "    with(" + rowBuilderNameCreator.
+                createColumnConstantName(column.getKey()) +", value);");
         println(out, "    return this;");
         println(out, "}");
     }
@@ -271,4 +289,5 @@ public class CustomRowBuilderGenerator {
             return type;
         }
     }
+
 }

@@ -58,6 +58,8 @@ public class BuilderDataSetWriter implements IDataSetConsumer {
 
     private final String[] importStatements;
 
+    private final RowBuilderNameCreator rowBuilderNameCreator;
+
     private static final String INDENT = "    ";
 
     private String currentIndent = "";
@@ -71,12 +73,22 @@ public class BuilderDataSetWriter implements IDataSetConsumer {
 
 
 
+
+
     /**
-     *
+     * Creates a new writer.
+     * @param destinationDir directory where the new class should be written.
+     * @param packageName the package name of the class.
+     * @param className the name of the class.
+     * @param encoding the file encoding.
+     * @param rowBuilderPackage package where the rowbuilder exists.
+     * @param allowAutoBoxing true if auto boxing is allowed.
+     * @param rowBuilderNameCreator the naming strategy for teh rowbuilder.
+     * @param importStatements some additional imports.
      */
     public BuilderDataSetWriter(File destinationDir,
             String packageName, String className, String encoding, String rowBuilderPackage,
-            boolean allowAutoBoxing, String... importStatements) {
+            boolean allowAutoBoxing, RowBuilderNameCreator rowBuilderNameCreator, String... importStatements) {
         this.destinationDir = new File(destinationDir,
                 packageName.replace('.', '/'));
         this.packageName = packageName;
@@ -85,6 +97,7 @@ public class BuilderDataSetWriter implements IDataSetConsumer {
         this.importStatements = importStatements;
         this.rowBuilderPackage = rowBuilderPackage;
         this.allowAutoBoxing = allowAutoBoxing;
+        this.rowBuilderNameCreator = rowBuilderNameCreator;
     }
 
     public void addTypeMapping(Class<?> source, Class<?> Target) {
@@ -107,8 +120,9 @@ public class BuilderDataSetWriter implements IDataSetConsumer {
             println("package " + packageName + ";");
             out.println();
             for (String tableName : dataSet.getTableNames()) {
-                println("import static " + rowBuilderPackage + "." + tableName
-                        + "RowBuilder.new" + tableName + ";");
+                println("import static " + rowBuilderPackage + "." +
+                        rowBuilderNameCreator.createRowBuilderName(tableName) +
+                        "." + rowBuilderNameCreator.createFactoryMethodName(tableName) + ";");
             }
             println("import static org.dbunit.dataset.builder.ObjectFactory.*;");
             println("import static java.lang.Boolean.*;");
@@ -190,12 +204,13 @@ public class BuilderDataSetWriter implements IDataSetConsumer {
 
     @Override
     public void row(Object[] values) throws DataSetException {
-        out.print(currentIndent + "new" + currentTableName + "()");
+        out.print(currentIndent + rowBuilderNameCreator.createFactoryMethodName(currentTableName) + "()");
         for (int i = 0; i < values.length; i++) {
               final String columnName = currentTableColumns[i].getColumnName();
               final Object value = values[i];
               if (value != null) {
-                  out.print("." +  columnName + "(" + getValueRepresentation(value) + ")");
+                  out.print("." +  rowBuilderNameCreator.createSetterName(columnName)
+                          + "(" + getValueRepresentation(value) + ")");
               }
         }
         out.println(".addTo(b);");
