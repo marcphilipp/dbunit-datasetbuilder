@@ -50,7 +50,6 @@ public class CustomRowBuilderGenerator {
     private final File destinationDir;
     private final String packageName;
     private final String encoding;
-    private final boolean includeValidation;
     private final RowBuilderNameCreator rowBuilderNameCreator;
 
     private String indent = "";
@@ -71,26 +70,9 @@ public class CustomRowBuilderGenerator {
                 packageName.replace('.', '/'));
         this.packageName = packageName;
         this.encoding = encoding == null ? System.getProperty("file.encoding") : encoding;
-        includeValidation = isValidtorExtensionInClasspath();
         this.rowBuilderNameCreator = rowBuilderNameCreator;
-    }
+     }
 
-    /**
-     * Check if the validation-extension is part of the classpath.
-     * @author niels
-     * @since 2.4.0
-     * @return
-     */
-    private boolean isValidtorExtensionInClasspath() {
-        boolean validatorFound;
-        try {
-            this.getClass().getClassLoader().loadClass("org.dbunit.validator.IValidator");
-            validatorFound = true;
-        } catch (ClassNotFoundException e) {
-            validatorFound = false;
-        }
-        return validatorFound;
-    }
 
     public void addTypeMapping(Class<?> source, Class<?> Target) {
         typeMap.put(source, Target);
@@ -148,9 +130,6 @@ public class CustomRowBuilderGenerator {
             out.println("package " + packageName + ";");
             out.println();
             out.println("import org.dbunit.dataset.builder.BasicDataRowBuilder;");
-            if (includeValidation) {
-                out.println("import org.dbunit.validator.IValidator;");
-            }
             for (String importStatement : importStatements) {
                 out.println(importStatement);
             }
@@ -197,11 +176,6 @@ public class CustomRowBuilderGenerator {
             for (Map.Entry<String, Class<?>> column : columnTypes.entrySet()) {
                 createSetterForColumnValue(out, className, column);
                 out.println();
-
-                if (includeValidation) {
-                    createSetterForColumnValidator(className, out, column);
-                    out.println();
-                }
             }
             out.println();
             println(out, "public static " + className + " " +
@@ -227,23 +201,6 @@ public class CustomRowBuilderGenerator {
         }
     }
 
-    /**
-     * @author niels
-     * @since 2.4.10
-     * @param className
-     * @param out
-     * @param column
-     */
-    private void createSetterForColumnValidator(final String className,
-            PrintWriter out, Map.Entry<String, Class<?>> column) {
-        println(out, "public final " + className + " "
-                +  rowBuilderNameCreator.createSetterName(column.getKey())
-                + " (IValidator<?> value) {");
-        println(out, "    with(" + rowBuilderNameCreator.
-                createColumnConstantName(column.getKey()) +", value);");
-        println(out, "    return this;");
-        println(out, "}");
-    }
 
     /**
      * @author niels
@@ -254,9 +211,14 @@ public class CustomRowBuilderGenerator {
      */
     private void createSetterForColumnValue(PrintWriter out,
             final String className, Map.Entry<String, Class<?>> column) {
+        Class<?> type = column.getValue();
+        if (Number.class.isAssignableFrom(type)) {
+            type = Number.class;
+        }
+        
         println(out, "public final " + className + " "
                 + rowBuilderNameCreator.createSetterName(column.getKey())
-                + " (" + column.getValue().getSimpleName() + " value) {");
+                + " (" + type.getSimpleName() + " value) {");
         println(out, "    with(" + rowBuilderNameCreator.
                 createColumnConstantName(column.getKey()) +", value);");
         println(out, "    return this;");
