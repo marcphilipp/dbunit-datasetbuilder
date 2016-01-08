@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.ppi.dbunit.datasetbuilder</groupId>
     <artifactId>dbunit-datasetbuilder</artifactId>
-    <version>1.4</version>
+    <version>1.5-SNAPSHOT</version>
 
     <name>DbUnit DataSetBuilder</name>
     <url>https://github.com/marcphilipp/dbunit-datasetbuilder</url>
@@ -20,7 +20,7 @@
         <url>http://github.com/opensource21/dbunit-datasetbuilder</url>
         <connection>scm:git:git://github.com/opensource21/dbunit-datasetbuilder</connection>
         <developerConnection>scm:git:git@github.com:opensource21/dbunit-datasetbuilder.git</developerConnection>
-      <tag>dbunit-datasetbuilder-1.4</tag>
+      <tag>HEAD</tag>
   </scm>
     <organization>
         <name>PPI AG</name>
