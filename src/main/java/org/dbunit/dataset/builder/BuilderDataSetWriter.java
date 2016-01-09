@@ -49,6 +49,11 @@ import org.dbunit.dataset.stream.IDataSetConsumer;
  */
 public class BuilderDataSetWriter implements IDataSetConsumer {
 
+    /** Constant that show that autoboxing is allowed.*/
+    public static final boolean ALLOW_AUTO_BOXING = true;
+    /** Constant that show that autoboxing is not allowed.*/
+    public static final boolean DISALLOW_AUTO_BOXING = false;
+    
     private final File destinationDir;
     private final String packageName;
     private final String className;
@@ -100,8 +105,13 @@ public class BuilderDataSetWriter implements IDataSetConsumer {
         this.rowBuilderNameCreator = rowBuilderNameCreator;
     }
 
-    public void addTypeMapping(Class<?> source, Class<?> Target) {
-        typeMap.put(source, Target);
+    /**
+     * Map the given source-class (given by the meta-data) to the target-type.
+     * @param source the source-type
+     * @param target the target-type
+     */
+    public void addTypeMapping(Class<?> source, Class<?> target) {
+        typeMap.put(source, target);
     }
 
      /**
