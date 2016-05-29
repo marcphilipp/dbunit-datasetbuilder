@@ -23,8 +23,10 @@ package org.dbunit.dataset.builder;
 
 import static org.dbunit.dataset.builder.DataSetBuilder.newBasicRow;
 import static org.dbunit.dataset.builder.DataSetBuilderIntegrationTest.PERSONRowBuilder.newPERSON;
+import static org.dbunit.dataset.builder.ObjectFactory.*;
 
 import java.sql.Date;
+import java.util.TimeZone;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
@@ -53,6 +55,7 @@ public class DataSetBuilderIntegrationTest {
      */
     @Test
     public void testBuild() throws Exception {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT-1"));
         DataSetBuilder builder = new DataSetBuilder();
         newPERSON().NAME("Bob").BIRTHPLACE("NEW YORK").addTo(builder);
         newPERSON().NAME("Alice").BIRTHPLACE("London").addTo(builder);
@@ -87,7 +90,7 @@ public class DataSetBuilderIntegrationTest {
         public PERSONRowBuilder(String... identifierColumns) {
             super(TABLE_NAME, identifierColumns);
             setAllColumnNames(ALL_COLUMNS);
-            addDefaultValue(C_DATE_OF_BIRTH, new Date(0));
+            addDefaultValue(C_DATE_OF_BIRTH, d("1970-01-01"));
             addDefaultValue(C_NAME, "");
             addDefaultValue(C_VERSION, new Long("0"));
             addDefaultValue(C_FIRSTNAME, "");
