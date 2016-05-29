@@ -20,16 +20,22 @@
  */
 package org.dbunit.dataset.builder;
 
-public class CaseSensitiveStringPolicy implements IStringPolicy {
+import org.dbunit.dataset.DataSetException;
+import org.dbunit.dataset.IDataSet;
 
-    @Override
-    public boolean areEqual(String first, String second) {
-        return first.equals(second);
-    }
+/**
+ * Object to manipulate a {@link IDataSet}, you can add {@link BasicDataRowBuilder}
+ * with the information how the dataset should be manipulated.
+ * @author niels
+ *
+ */
+public interface IDataSetManipulator {
 
-    @Override
-    public String toKey(String value) {
-        return value;
-    }
+    /**
+     * Added a row so that a Dataset can be manipulated or created.
+     * @param row
+     * @throws DataSetException
+     */
+    public abstract void add(BasicDataRowBuilder row) throws DataSetException;
 
 }

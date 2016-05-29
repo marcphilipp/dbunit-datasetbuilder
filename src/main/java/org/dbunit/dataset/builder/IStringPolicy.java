@@ -20,16 +20,10 @@
  */
 package org.dbunit.dataset.builder;
 
-public class CaseSensitiveStringPolicy implements IStringPolicy {
+public interface IStringPolicy {
 
-    @Override
-    public boolean areEqual(String first, String second) {
-        return first.equals(second);
-    }
+    boolean areEqual(String first, String second);
 
-    @Override
-    public String toKey(String value) {
-        return value;
-    }
+    String toKey(String value);
 
 }
